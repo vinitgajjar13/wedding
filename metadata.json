@@ -1,0 +1,6 @@
+{
+  "name": "VastraVeda - Wedding Wear Rental & Sales Management",
+  "description": "Production-ready India-focused Wedding Wear Rental, Sales, Custom Tailoring, and Collection Management SaaS with unique physical item tracking, smart date availability, deposits, returns, alterations, and reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
