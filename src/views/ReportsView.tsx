@@ -26,6 +26,9 @@ export const ReportsView: React.FC = () => {
 
   if (!stats) return null;
 
+  const kpis = stats.kpis || stats;
+  const productPerformance = stats.productPerformance || [];
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
       {/* Header */}
@@ -48,7 +51,7 @@ export const ReportsView: React.FC = () => {
         <div className="bg-white p-5 rounded-2xl border border-[#EBE4D5] shadow-xs">
           <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider block">Total Boutique Revenue</span>
           <div className="mt-2 text-2xl font-bold text-[#1F2421]">
-            <CurrencyDisplay amount={stats.totalRevenue} />
+            <CurrencyDisplay amount={kpis.totalRevenue || 0} />
           </div>
           <div className="text-[11px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -59,7 +62,7 @@ export const ReportsView: React.FC = () => {
         <div className="bg-white p-5 rounded-2xl border border-[#EBE4D5] shadow-xs">
           <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider block">Total Operational Outflow</span>
           <div className="mt-2 text-2xl font-bold text-rose-700">
-            <CurrencyDisplay amount={stats.totalExpenses} />
+            <CurrencyDisplay amount={kpis.totalExpenses || 0} />
           </div>
           <p className="text-[11px] text-stone-400 mt-1">Drycleaning, Tailoring & Rent</p>
         </div>
@@ -67,17 +70,17 @@ export const ReportsView: React.FC = () => {
         <div className="bg-white p-5 rounded-2xl border border-[#EBE4D5] shadow-xs">
           <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider block">Net Boutique Profit</span>
           <div className="mt-2 text-2xl font-extrabold text-emerald-800">
-            <CurrencyDisplay amount={stats.netProfit} />
+            <CurrencyDisplay amount={kpis.estimatedNetProfit ?? kpis.netProfit ?? 0} />
           </div>
           <div className="text-[11px] text-emerald-700 font-semibold mt-1">
-            Margin: {Math.round((stats.netProfit / (stats.totalRevenue || 1)) * 100)}%
+            Margin: {Math.round(((kpis.estimatedNetProfit ?? kpis.netProfit ?? 0) / (kpis.totalRevenue || 1)) * 100)}%
           </div>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-[#EBE4D5] shadow-xs">
           <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider block">Security Deposits in Escrow</span>
           <div className="mt-2 text-2xl font-bold text-[#9E7B3B]">
-            <CurrencyDisplay amount={stats.activeEscrowDeposit} />
+            <CurrencyDisplay amount={kpis.totalSecurityDepositHeld ?? kpis.activeEscrowDeposit ?? 0} />
           </div>
           <p className="text-[11px] text-stone-400 mt-1">Held safely for active bookings</p>
         </div>
@@ -111,11 +114,11 @@ export const ReportsView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {products.map((p) => {
-                const timesRented = p.timesRented || 3;
-                const lifetimeEarnings = timesRented * p.rentalPrice;
-                const purchaseCost = p.purchaseCost || 25000;
-                const roiPct = Math.round(((lifetimeEarnings - purchaseCost) / purchaseCost) * 100);
+              {(productPerformance.length > 0 ? productPerformance : products).map((p: any) => {
+                const timesRented = p.totalRentals ?? p.timesRented ?? 3;
+                const lifetimeEarnings = p.totalRevenue ?? (timesRented * p.rentalPrice);
+                const purchaseCost = p.purchasePrice ?? p.purchaseCost ?? 25000;
+                const roiPct = p.roiPercent ?? Math.round(((lifetimeEarnings - purchaseCost) / purchaseCost) * 100);
 
                 return (
                   <tr key={p.id} className="hover:bg-stone-50/60 transition-colors">

@@ -34,7 +34,7 @@ export const SalesOrdersView: React.FC = () => {
       .finally(() => setLoading(false));
 
     api.getCustomers().then(setCustomers).catch(console.error);
-    api.getProducts({ type: 'sales' }).then(setProducts).catch(console.error);
+    api.getProducts({ type: 'sale' }).then(setProducts).catch(console.error);
   }, [refreshTrigger]);
 
   const handleCreateOrder = async (e: React.FormEvent) => {
@@ -49,7 +49,7 @@ export const SalesOrdersView: React.FC = () => {
 
     setSubmitting(true);
     try {
-      const price = prod.salePrice || 5000;
+      const price = prod.sellingPrice || (prod as any).salePrice || 5000;
       const subtotal = price * quantity;
       const taxAmount = Math.round((subtotal - discount) * 0.05);
       const finalTotal = subtotal - discount + taxAmount;
@@ -220,7 +220,7 @@ export const SalesOrdersView: React.FC = () => {
                   <option value="">-- Choose Item --</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} - Sale: ₹{p.salePrice?.toLocaleString('en-IN')}
+                      {p.name} - Price: ₹{(p.sellingPrice || (p as any).salePrice || 0).toLocaleString('en-IN')}
                     </option>
                   ))}
                 </select>

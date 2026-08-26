@@ -143,7 +143,6 @@ export const CustomersView: React.FC = () => {
       </div>
 
       <CustomerDetailModal customer={selectedCustomer} onClose={() => setSelectedCustomer(null)} />
-      <CustomerFormModal />
     </div>
   );
 };

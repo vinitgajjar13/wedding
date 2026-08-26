@@ -29,8 +29,11 @@ import {
 import { useApp } from '../../context/AppContext.js';
 import { UserRole } from '../../types/index.js';
 
+import { Link } from '../../router/Router.js';
+
 interface NavItem {
   id: string;
+  path: string;
   labelKey: string;
   defaultLabel: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -56,29 +59,24 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
   const [globalSearch, setGlobalSearch] = useState('');
 
   const navItems: NavItem[] = [
-    { id: 'dashboard', labelKey: 'dashboard', defaultLabel: 'Dashboard', icon: LayoutDashboard },
-    { id: 'smart-search', labelKey: 'smartAvailability', defaultLabel: 'Smart Outfit Finder', icon: Sparkles, badge: 'Live Dates' },
-    { id: 'products', labelKey: 'products', defaultLabel: 'Products & Wear', icon: Shirt },
-    { id: 'inventory', labelKey: 'inventory', defaultLabel: 'Physical Inventory', icon: Boxes },
-    { id: 'bookings', labelKey: 'bookings', defaultLabel: 'Rental Bookings', icon: CalendarDays },
-    { id: 'returns', labelKey: 'returns', defaultLabel: 'Returns & Inspection', icon: RotateCcw },
-    { id: 'calendar', labelKey: 'calendar', defaultLabel: 'Wedding Calendar', icon: CalendarDays },
-    { id: 'customers', labelKey: 'customers', defaultLabel: 'Customers', icon: Users },
-    { id: 'measurements', labelKey: 'measurements', defaultLabel: 'Measurements', icon: Ruler },
-    { id: 'alterations', labelKey: 'alterations', defaultLabel: 'Alterations & Tailoring', icon: Scissors },
-    { id: 'orders', labelKey: 'orders', defaultLabel: 'Sales Orders', icon: ShoppingBag },
-    { id: 'payments', labelKey: 'payments', defaultLabel: 'Payments & Deposits', icon: CreditCard },
-    { id: 'expenses', labelKey: 'expenses', defaultLabel: 'Expenses', icon: Receipt },
-    { id: 'suppliers-staff', labelKey: 'suppliers', defaultLabel: 'Suppliers & Staff', icon: Truck },
-    { id: 'reports', labelKey: 'reports', defaultLabel: 'Reports & Profit', icon: BarChart3 },
-    { id: 'audit-logs', labelKey: 'auditLogs', defaultLabel: 'Audit Logs', icon: History },
-    { id: 'settings', labelKey: 'settings', defaultLabel: 'Settings', icon: Settings },
+    { id: 'dashboard', path: '/dashboard', labelKey: 'dashboard', defaultLabel: 'Dashboard', icon: LayoutDashboard },
+    { id: 'availability', path: '/availability', labelKey: 'smartAvailability', defaultLabel: 'Smart Outfit Finder', icon: Sparkles, badge: 'Live Dates' },
+    { id: 'products', path: '/products', labelKey: 'products', defaultLabel: 'Products & Wear', icon: Shirt },
+    { id: 'inventory', path: '/inventory', labelKey: 'inventory', defaultLabel: 'Physical Inventory', icon: Boxes },
+    { id: 'bookings', path: '/bookings', labelKey: 'bookings', defaultLabel: 'Rental Bookings', icon: CalendarDays },
+    { id: 'returns', path: '/returns', labelKey: 'returns', defaultLabel: 'Returns & Inspection', icon: RotateCcw },
+    { id: 'calendar', path: '/calendar', labelKey: 'calendar', defaultLabel: 'Wedding Calendar', icon: CalendarDays },
+    { id: 'customers', path: '/customers', labelKey: 'customers', defaultLabel: 'Customers', icon: Users },
+    { id: 'measurements', path: '/measurements', labelKey: 'measurements', defaultLabel: 'Measurements', icon: Ruler },
+    { id: 'alterations', path: '/alterations', labelKey: 'alterations', defaultLabel: 'Alterations & Tailoring', icon: Scissors },
+    { id: 'sales', path: '/sales', labelKey: 'orders', defaultLabel: 'Sales Orders', icon: ShoppingBag },
+    { id: 'payments', path: '/payments', labelKey: 'payments', defaultLabel: 'Payments & Deposits', icon: CreditCard },
+    { id: 'expenses', path: '/expenses', labelKey: 'expenses', defaultLabel: 'Expenses', icon: Receipt },
+    { id: 'suppliers', path: '/suppliers', labelKey: 'suppliers', defaultLabel: 'Suppliers & Staff', icon: Truck },
+    { id: 'reports', path: '/reports', labelKey: 'reports', defaultLabel: 'Reports & Profit', icon: BarChart3 },
+    { id: 'audit', path: '/audit', labelKey: 'auditLogs', defaultLabel: 'Audit Logs', icon: History },
+    { id: 'settings', path: '/settings', labelKey: 'settings', defaultLabel: 'Settings', icon: Settings },
   ];
-
-  const handleNavClick = (id: string) => {
-    setCurrentView(id);
-    setMobileMenuOpen(false);
-  };
 
   return (
     <div className="flex h-screen bg-[#FAF8F5] overflow-hidden text-[#1E2022]">
@@ -116,11 +114,16 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
         <div className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5 custom-scrollbar">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = currentView === item.id;
+            const isActive =
+              currentView === item.id ||
+              (item.id === 'availability' && currentView === 'smart-search') ||
+              (item.id === 'sales' && currentView === 'orders') ||
+              (item.id === 'suppliers' && currentView === 'suppliers-staff') ||
+              (item.id === 'audit' && currentView === 'audit-logs');
             return (
-              <button
+              <Link
                 key={item.id}
-                onClick={() => handleNavClick(item.id)}
+                to={item.path}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                   isActive
                     ? 'bg-[#F5EFE3] text-[#1F2421] font-semibold shadow-xs'
@@ -138,7 +141,7 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
                     {item.badge}
                   </span>
                 )}
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -214,11 +217,17 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
             <div className="flex-1 overflow-y-auto p-3 space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = currentView === item.id;
+                const isActive =
+                  currentView === item.id ||
+                  (item.id === 'availability' && currentView === 'smart-search') ||
+                  (item.id === 'sales' && currentView === 'orders') ||
+                  (item.id === 'suppliers' && currentView === 'suppliers-staff') ||
+                  (item.id === 'audit' && currentView === 'audit-logs');
                 return (
-                  <button
+                  <Link
                     key={item.id}
-                    onClick={() => handleNavClick(item.id)}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium ${
                       isActive ? 'bg-[#F5EFE3] text-[#1F2421] font-bold' : 'text-stone-700'
                     }`}
@@ -232,7 +241,7 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
                         {item.badge}
                       </span>
                     )}
-                  </button>
+                  </Link>
                 );
               })}
             </div>
@@ -256,7 +265,7 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
               <span className="text-stone-400">VastraVeda Studio</span>
               <span className="text-stone-300">/</span>
               <span className="font-semibold text-stone-800 capitalize">
-                {navItems.find((n) => n.id === currentView)?.defaultLabel || currentView}
+                {navItems.find((n) => n.id === currentView || (n.id === 'availability' && currentView === 'smart-search') || (n.id === 'sales' && currentView === 'orders'))?.defaultLabel || currentView}
               </span>
             </div>
           </div>
@@ -265,9 +274,9 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
           <div className="flex items-center gap-2.5 sm:gap-3">
             {/* Smart Outfit Finder Button */}
             <button
-              onClick={() => setCurrentView('smart-search')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
-                currentView === 'smart-search'
+              onClick={() => setCurrentView('availability')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
+                currentView === 'availability' || currentView === 'smart-search'
                   ? 'bg-[#1F2421] text-white border-[#1F2421]'
                   : 'bg-[#FAF4E6] text-[#8C6B28] border-[#EBDCB9] hover:bg-[#F5EAD2]'
               }`}

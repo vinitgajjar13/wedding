@@ -66,11 +66,11 @@ export const InventoryView: React.FC = () => {
   // Status Counts
   const counts = {
     total: items.length,
-    available: items.filter((i) => i.status === 'available').length,
-    rented: items.filter((i) => i.status === 'rented').length,
-    cleaning: items.filter((i) => i.status === 'cleaning').length,
-    alteration: items.filter((i) => i.status === 'alteration').length,
-    repair: items.filter((i) => i.status === 'repair' || i.condition === 'minor_damage').length,
+    available: items.filter((i) => i.status?.toLowerCase() === 'available').length,
+    rented: items.filter((i) => i.status?.toLowerCase() === 'rented' || i.status?.toLowerCase() === 'booked').length,
+    cleaning: items.filter((i) => i.status?.toLowerCase() === 'cleaning').length,
+    alteration: items.filter((i) => i.status?.toLowerCase() === 'alteration').length,
+    repair: items.filter((i) => i.status?.toLowerCase() === 'repair' || (i.condition && i.condition.toLowerCase().includes('damage'))).length,
   };
 
   return (

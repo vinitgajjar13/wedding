@@ -26,10 +26,7 @@ export const PaymentsView: React.FC = () => {
       .finally(() => setLoading(false));
   }, [refreshTrigger]);
 
-  const totalDepositsHeld = bookings.reduce(
-    (acc, b) => (b.depositStatus === 'held' || b.depositStatus === 'partial' ? acc + b.securityDeposit : acc),
-    0
-  );
+  const totalDepositsHeld = bookings.reduce((acc, b) => acc + (b.depositHeld || 0), 0);
 
   const totalAdvanceCollected = bookings.reduce((acc, b) => acc + (b.advancePaid || 0), 0);
 

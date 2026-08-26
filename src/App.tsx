@@ -1,4 +1,5 @@
 import React from 'react';
+import { RouterProvider } from './router/Router.js';
 import { AppProvider, useApp } from './context/AppContext.js';
 import { MainLayout } from './components/layout/MainLayout.js';
 
@@ -22,6 +23,7 @@ import { AuditLogsView } from './views/AuditLogsView.js';
 import { SettingsView } from './views/SettingsView.js';
 
 // Global Modals
+import { ProductDetailModal } from './components/products/ProductDetailModal.js';
 import { ProductFormModal } from './components/products/ProductFormModal.js';
 import { NewBookingWizardModal } from './components/bookings/NewBookingWizardModal.js';
 import { ReturnInspectionModal } from './components/returns/ReturnInspectionModal.js';
@@ -39,6 +41,7 @@ const MainContent: React.FC = () => {
       case 'dashboard':
         return <DashboardView />;
       case 'availability':
+      case 'smart-search':
         return <SmartAvailabilityView />;
       case 'products':
         return <ProductsView />;
@@ -55,6 +58,7 @@ const MainContent: React.FC = () => {
       case 'alterations':
         return <AlterationsView />;
       case 'sales':
+      case 'orders':
         return <SalesOrdersView />;
       case 'calendar':
         return <CalendarView />;
@@ -65,8 +69,10 @@ const MainContent: React.FC = () => {
       case 'reports':
         return <ReportsView />;
       case 'suppliers':
+      case 'suppliers-staff':
         return <SuppliersAndStaffView />;
       case 'audit':
+      case 'audit-logs':
         return <AuditLogsView />;
       case 'settings':
         return <SettingsView />;
@@ -80,6 +86,7 @@ const MainContent: React.FC = () => {
       {renderView()}
 
       {/* Global Modals & Notifications */}
+      <ProductDetailModal />
       <ProductFormModal />
       <NewBookingWizardModal />
       <ReturnInspectionModal />
@@ -94,8 +101,10 @@ const MainContent: React.FC = () => {
 
 export default function App() {
   return (
-    <AppProvider>
-      <MainContent />
-    </AppProvider>
+    <RouterProvider>
+      <AppProvider>
+        <MainContent />
+      </AppProvider>
+    </RouterProvider>
   );
 }

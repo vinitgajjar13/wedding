@@ -37,9 +37,9 @@ export const ReturnsView: React.FC = () => {
 
   const filtered = returns.filter(
     (r) =>
-      r.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.bookingNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.inspectorName.toLowerCase().includes(searchTerm.toLowerCase())
+      (r.customerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.bookingNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.processedBy || (r as any).inspectorName || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -130,16 +130,16 @@ export const ReturnsView: React.FC = () => {
                       )}
                     </td>
                     <td className="py-3.5 px-4 text-right text-rose-700 font-medium">
-                      <CurrencyDisplay amount={r.lateFeeCharged} />
+                      <CurrencyDisplay amount={r.totalLateFee ?? (r as any).lateFeeCharged ?? 0} />
                     </td>
                     <td className="py-3.5 px-4 text-right text-rose-700 font-medium">
-                      <CurrencyDisplay amount={r.damageFeeCharged} />
+                      <CurrencyDisplay amount={r.totalDamageCost ?? (r as any).damageFeeCharged ?? 0} />
                     </td>
                     <td className="py-3.5 px-4 text-right font-bold text-emerald-800">
-                      <CurrencyDisplay amount={r.depositRefunded} />
+                      <CurrencyDisplay amount={r.netDepositRefund ?? (r as any).depositRefunded ?? 0} />
                     </td>
                     <td className="py-3.5 px-4 text-stone-600 font-medium">
-                      {r.inspectorName}
+                      {r.processedBy || (r as any).inspectorName || 'Store Manager'}
                     </td>
                   </tr>
                 ))
@@ -148,8 +148,6 @@ export const ReturnsView: React.FC = () => {
           </table>
         </div>
       </div>
-
-      <ReturnInspectionModal />
     </div>
   );
 };

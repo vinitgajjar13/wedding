@@ -99,7 +99,7 @@ export const AlterationsView: React.FC = () => {
                     <div className="flex items-center justify-between text-[11px] text-stone-500 pt-1 border-t border-stone-100">
                       <div className="flex items-center gap-1 font-medium text-stone-700">
                         <User className="w-3 h-3 text-[#C5A059]" />
-                        <span>{task.tailorName}</span>
+                        <span>{task.assignedTailorName || task.tailorName || 'Master Tailor'}</span>
                       </div>
                       <div className="flex items-center gap-1 text-stone-500">
                         <Clock className="w-3 h-3 text-stone-400" />
@@ -114,10 +114,10 @@ export const AlterationsView: React.FC = () => {
                         onChange={(e) => handleUpdateStatus(task.id, e.target.value as AlterationStatus)}
                         className="w-full text-[11px] px-2 py-1 bg-stone-50 border border-stone-200 rounded-md outline-none font-semibold text-stone-800"
                       >
-                        <option value="pending">Move: Pending</option>
-                        <option value="in_progress">Move: In Progress</option>
-                        <option value="ready">Move: Ready for Trial</option>
-                        <option value="completed">Move: Completed</option>
+                        <option value="Pending">Move: Pending</option>
+                        <option value="In Progress">Move: In Progress</option>
+                        <option value="Ready">Move: Ready for Trial</option>
+                        <option value="Completed">Move: Completed</option>
                       </select>
                     </div>
                   </div>

@@ -92,33 +92,36 @@ export interface MeasurementField {
 }
 
 export interface MenMeasurements {
-  height?: string;
-  weight?: string;
-  chest?: string;
-  waist?: string;
-  shoulder?: string;
-  sleeve?: string;
-  neck?: string;
-  kurtaLength?: string;
-  sherwaniLength?: string;
-  pantLength?: string;
-  thigh?: string;
-  bottom?: string;
+  height?: string | number;
+  weight?: string | number;
+  chest?: string | number;
+  waist?: string | number;
+  shoulder?: string | number;
+  sleeve?: string | number;
+  sleeveLength?: string | number;
+  neck?: string | number;
+  kurtaLength?: string | number;
+  sherwaniLength?: string | number;
+  pantLength?: string | number;
+  thigh?: string | number;
+  bottom?: string | number;
+  bottomOpening?: string | number;
   shoeSize?: string;
   customFields?: MeasurementField[];
 }
 
 export interface WomenMeasurements {
-  height?: string;
-  bust?: string;
-  waist?: string;
-  hip?: string;
-  shoulder?: string;
-  sleeve?: string;
-  blouseLength?: string;
-  lehengaWaist?: string;
-  lehengaLength?: string;
-  dupattaLength?: string;
+  height?: string | number;
+  bust?: string | number;
+  waist?: string | number;
+  hip?: string | number;
+  shoulder?: string | number;
+  sleeve?: string | number;
+  sleeveLength?: string | number;
+  blouseLength?: string | number;
+  lehengaWaist?: string | number;
+  lehengaLength?: string | number;
+  dupattaLength?: string | number;
   shoeSize?: string;
   customFields?: MeasurementField[];
 }
@@ -133,12 +136,14 @@ export interface Customer {
   address: string;
   city: string;
   dateOfBirth?: string;
+  weddingDate?: string;
   notes?: string;
   menMeasurements?: MenMeasurements;
   womenMeasurements?: WomenMeasurements;
   totalBookings: number;
   totalPurchases: number;
   outstandingAmount: number;
+  totalSpent?: number;
   createdDate: string;
 }
 
@@ -182,11 +187,14 @@ export type BookingStatus =
   | 'Quotation'
   | 'Reserved'
   | 'Confirmed'
+  | 'Fitting Scheduled'
+  | 'Alterations'
   | 'Preparing'
   | 'Ready'
   | 'Picked Up'
   | 'Delivered'
   | 'Active Rental'
+  | 'Overdue'
   | 'Returned'
   | 'Inspection'
   | 'Completed'
@@ -261,8 +269,8 @@ export interface ReturnInspectionItem {
   condition: ItemCondition;
   damageType?: string;
   damageDescription?: string;
-  damageRepairCost: number;
-  customerDeduction: number;
+  damageRepairCost?: number;
+  customerDeduction?: number;
   cleaningRequired: boolean;
   repairRequired: boolean;
 }

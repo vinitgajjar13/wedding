@@ -88,7 +88,7 @@ export const DashboardView: React.FC = () => {
 
         <div className="flex flex-wrap gap-2.5 shrink-0">
           <button
-            onClick={() => setCurrentView('smart-search')}
+            onClick={() => setCurrentView('availability')}
             className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#C5A059] text-[#1F2421] hover:bg-[#D8B46C] text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
           >
             <Sparkles className="w-4 h-4" />
@@ -381,7 +381,7 @@ export const DashboardView: React.FC = () => {
               </div>
 
               <button
-                onClick={() => setCurrentView('smart-search')}
+                onClick={() => setCurrentView('availability')}
                 className="w-full py-2.5 bg-[#1F2421] text-white hover:bg-[#303833] text-xs font-bold rounded-xl shadow-xs transition-colors mt-2"
               >
                 Search Available Outfits →

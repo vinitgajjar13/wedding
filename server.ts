@@ -224,7 +224,8 @@ async function startServer() {
       list = list.filter((i) => i.productId === productId);
     }
     if (status && status !== 'all') {
-      list = list.filter((i) => i.status === status);
+      const st = String(status).toLowerCase();
+      list = list.filter((i) => i.status.toLowerCase() === st);
     }
     if (size && size !== 'all') {
       list = list.filter((i) => i.size === size);
@@ -367,7 +368,11 @@ async function startServer() {
     let list = [...db.bookings];
 
     if (status && status !== 'all') {
-      list = list.filter((b) => b.bookingStatus === status);
+      const targetSt = String(status).toLowerCase().replace(/[\s_]+/g, '');
+      list = list.filter((b) => {
+        const bkSt = b.bookingStatus.toLowerCase().replace(/[\s_]+/g, '');
+        return bkSt === targetSt;
+      });
     }
     if (search) {
       const q = String(search).toLowerCase();
@@ -408,6 +413,8 @@ async function startServer() {
   app.post('/api/bookings', (req, res) => {
     const body = req.body;
 
+    const effectiveEndDate = body.rentalEndDate || body.returnDate;
+
     // Validate date overlap on all chosen items
     if (body.items && Array.isArray(body.items)) {
       for (const item of body.items) {
@@ -415,7 +422,7 @@ async function startServer() {
           const check = db.isItemAvailableForDates(
             item.physicalItemId,
             body.rentalStartDate,
-            body.rentalEndDate
+            effectiveEndDate
           );
           if (!check.available) {
             return res.status(409).json({
@@ -430,6 +437,8 @@ async function startServer() {
     const bookingId = `bk-${Date.now().toString().slice(-4)}`;
     const bookingNumber = `BK-2026-${String(db.bookings.length + 803).padStart(4, '0')}`;
 
+    const effectiveDeposit = Number(body.depositCollected ?? body.depositPaid) || 0;
+
     const newBooking: any = {
       id: bookingId,
       bookingNumber,
@@ -441,9 +450,9 @@ async function startServer() {
       events: body.events || [],
       items: body.items || [],
       rentalStartDate: body.rentalStartDate,
-      rentalEndDate: body.rentalEndDate,
+      rentalEndDate: effectiveEndDate,
       pickupDate: body.pickupDate || body.rentalStartDate,
-      returnDate: body.returnDate || body.rentalEndDate,
+      returnDate: body.returnDate || effectiveEndDate,
       deliveryAddress: body.deliveryAddress || 'Store Pickup',
       rentalAmount: Number(body.rentalAmount) || 0,
       securityDeposit: Number(body.securityDeposit) || 0,
@@ -453,8 +462,8 @@ async function startServer() {
       totalAmount: Number(body.totalAmount) || 0,
       advancePaid: Number(body.advancePaid) || 0,
       remainingAmount: Number(body.remainingAmount) || 0,
-      depositCollected: Number(body.depositCollected) || 0,
-      depositHeld: Number(body.depositCollected) || 0,
+      depositCollected: effectiveDeposit,
+      depositHeld: effectiveDeposit,
       depositRefunded: 0,
       depositDeducted: 0,
       bookingStatus: body.bookingStatus || 'Confirmed',
@@ -608,19 +617,15 @@ async function startServer() {
   });
 
   app.post('/api/returns', (req, res) => {
-    const {
-      bookingId,
-      returnDate,
-      inspectedItems,
-      lateDays = 0,
-      lateFeePerDay = db.settings.lateFeePerDay,
-      totalLateFee = 0,
-      totalDamageCost = 0,
-      totalCustomerDeduction = 0,
-      depositRefundAmount = 0,
-      depositDeductedAmount = 0,
-      notes = '',
-    } = req.body;
+    const body = req.body;
+    const bookingId = body.bookingId;
+    const returnDate = body.returnDate || new Date().toISOString().split('T')[0];
+    const inspectedItems = body.inspectedItems || body.itemsInspected || [];
+    const lateDays = Number(body.lateDays || 0);
+    const lateFeePerDay = Number(body.lateFeePerDay || db.settings.lateFeePerDay);
+    const totalLateFee = Number(body.totalLateFee ?? body.lateFeeCharged ?? (lateDays * lateFeePerDay));
+    const totalDamageCost = Number(body.totalDamageCost ?? body.damageFeeCharged ?? 0);
+    const totalCustomerDeduction = Number(body.totalCustomerDeduction ?? (totalLateFee + totalDamageCost));
 
     const bookingIndex = db.bookings.findIndex((b) => b.id === bookingId);
     if (bookingIndex === -1) {
@@ -628,6 +633,9 @@ async function startServer() {
     }
 
     const booking = db.bookings[bookingIndex];
+    const depositHeld = Number(booking.depositHeld || booking.securityDeposit || 0);
+    const netDepositRefund = Number(body.depositRefundAmount ?? body.depositRefunded ?? Math.max(0, depositHeld - totalCustomerDeduction));
+    const depositDeductedAmount = Number(body.depositDeductedAmount ?? Math.min(depositHeld, totalCustomerDeduction));
     const returnRecordId = `ret-${Date.now()}`;
 
     const newReturn: ReturnRecord = {
@@ -636,21 +644,21 @@ async function startServer() {
       bookingNumber: booking.bookingNumber,
       customerId: booking.customerId,
       customerName: booking.customerName,
-      returnDate: returnDate || new Date().toISOString().split('T')[0],
+      returnDate,
       scheduledReturnDate: booking.returnDate,
-      isLate: Number(lateDays) > 0,
-      lateDays: Number(lateDays),
-      lateFeePerDay: Number(lateFeePerDay),
-      totalLateFee: Number(totalLateFee),
+      isLate: lateDays > 0,
+      lateDays,
+      lateFeePerDay,
+      totalLateFee,
       inspectedItems: inspectedItems || [],
-      totalDamageCost: Number(totalDamageCost),
-      totalCustomerDeduction: Number(totalCustomerDeduction),
-      securityDepositHeld: booking.depositHeld || booking.securityDeposit,
-      netDepositRefund: Number(depositRefundAmount),
-      netCustomerPayable: Math.max(0, Number(totalCustomerDeduction) - (booking.depositHeld || 0)),
-      processedBy: 'Manojbhai Patel (Store Manager)',
+      totalDamageCost,
+      totalCustomerDeduction,
+      securityDepositHeld: depositHeld,
+      netDepositRefund,
+      netCustomerPayable: Math.max(0, totalCustomerDeduction - depositHeld),
+      processedBy: body.inspectorName || 'Manojbhai Patel (Store Manager)',
       status: 'Completed',
-      notes,
+      notes: body.notes || '',
       createdDate: new Date().toISOString().split('T')[0],
     };
 
@@ -658,8 +666,8 @@ async function startServer() {
 
     // Update booking deposit stats and status
     db.bookings[bookingIndex].depositHeld = 0;
-    db.bookings[bookingIndex].depositRefunded = Number(depositRefundAmount);
-    db.bookings[bookingIndex].depositDeducted = Number(depositDeductedAmount);
+    db.bookings[bookingIndex].depositRefunded = netDepositRefund;
+    db.bookings[bookingIndex].depositDeducted = depositDeductedAmount;
     db.bookings[bookingIndex].bookingStatus = 'Completed';
 
     // Update inventory item conditions & statuses (Cleaning, Repair, or Available)
@@ -683,14 +691,14 @@ async function startServer() {
     }
 
     // Record Deposit Refund Payment entry if refund amount > 0
-    if (Number(depositRefundAmount) > 0) {
+    if (Number(netDepositRefund) > 0) {
       db.payments.push({
         id: `pay-${Date.now()}-ref`,
         bookingId: booking.id,
         bookingNumber: booking.bookingNumber,
         customerId: booking.customerId,
         customerName: booking.customerName,
-        amount: Number(depositRefundAmount),
+        amount: Number(netDepositRefund),
         paymentType: 'Deposit Refund',
         paymentMethod: 'UPI',
         transactionReference: 'REFUND/PROCESSED',
@@ -707,7 +715,7 @@ async function startServer() {
       user: 'Manager',
       action: 'Processed Return & Inspection',
       target: booking.bookingNumber,
-      details: `Return inspected for ${booking.customerName}. Deposit Refunded: ₹${depositRefundAmount}, Deducted: ₹${depositDeductedAmount}`,
+      details: `Return inspected for ${booking.customerName}. Deposit Refunded: ₹${netDepositRefund}, Deducted: ₹${depositDeductedAmount}`,
     });
 
     res.status(201).json({ success: true, data: newReturn });

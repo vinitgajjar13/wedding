@@ -40,12 +40,13 @@ export const CalendarView: React.FC = () => {
 
   const getEventsForDay = (day: number) => {
     const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return bookings.filter(
-      (b) =>
-        b.eventDate === dayStr ||
-        b.rentalStartDate === dayStr ||
-        b.returnDate === dayStr
-    );
+    return bookings.filter((b) => {
+      const matchesEvent = b.events?.some((ev) => ev.eventDate === dayStr);
+      const matchesPickup = b.pickupDate === dayStr || b.rentalStartDate === dayStr;
+      const matchesReturn = b.returnDate === dayStr || b.rentalEndDate === dayStr;
+      const inRentalSpan = b.rentalStartDate && b.returnDate && dayStr >= b.rentalStartDate && dayStr <= b.returnDate;
+      return matchesEvent || matchesPickup || matchesReturn || inRentalSpan;
+    });
   };
 
   return (

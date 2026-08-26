@@ -68,16 +68,16 @@ export const AuditLogsView: React.FC = () => {
                 logs.map((l) => (
                   <tr key={l.id} className="hover:bg-stone-50/60 transition-colors">
                     <td className="py-3.5 px-4 text-stone-500 font-mono text-[11px]">
-                      {new Date(l.timestamp).toLocaleString('en-IN')}
+                      {l.timestamp ? (isNaN(new Date(l.timestamp.replace(' ', 'T')).getTime()) ? l.timestamp : new Date(l.timestamp.replace(' ', 'T')).toLocaleString('en-IN')) : 'N/A'}
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-stone-900">{l.userName}</td>
+                    <td className="py-3.5 px-4 font-bold text-stone-900">{l.userName || l.user || 'System Operator'}</td>
                     <td className="py-3.5 px-4">
                       <span className="px-2 py-0.5 bg-stone-100 text-stone-800 rounded font-semibold text-[10px] uppercase">
                         {l.action}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 font-mono text-stone-700">
-                      {l.entityType} #{l.entityId}
+                      {l.target || (l.entityType ? `${l.entityType} #${l.entityId || ''}` : 'Action')}
                     </td>
                     <td className="py-3.5 px-4 text-stone-600 font-medium">{l.details}</td>
                   </tr>

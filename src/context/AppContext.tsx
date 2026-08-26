@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Language, translations } from '../i18n/translations.js';
 import { UserRole, Product, PhysicalInventoryItem, Booking } from '../types/index.js';
 
+import { useRouter } from '../router/Router.js';
+
 interface Toast {
   id: string;
   message: string;
@@ -16,7 +18,7 @@ interface AppContextType {
   t: (key: string) => string;
   currentRole: UserRole;
   setCurrentRole: (role: UserRole) => void;
-  
+
   // Modals & Drawers
   activeProductDetail: Product | null;
   setActiveProductDetail: (p: Product | null) => void;
@@ -26,26 +28,26 @@ interface AppContextType {
   setActiveWhatsAppBooking: (data: { booking: Booking; defaultType?: string } | null) => void;
   activeInvoice: { type: 'booking' | 'sale'; data: any } | null;
   setActiveInvoice: (inv: { type: 'booking' | 'sale'; data: any } | null) => void;
-  
+
   // Wizard & Action Modals
   isNewBookingOpen: boolean;
   setIsNewBookingOpen: (open: boolean) => void;
   preselectedBookingOutfit: { product: Product; physicalItem?: PhysicalInventoryItem; eventDate?: string; returnDate?: string } | null;
   openBookingWizardWithOutfit: (product: Product, physicalItem?: PhysicalInventoryItem, eventDate?: string, returnDate?: string) => void;
   closeBookingWizard: () => void;
-  
+
   isReturnModalOpen: boolean;
   setIsReturnModalOpen: (open: boolean) => void;
   preselectedReturnBookingId: string | null;
   openReturnModal: (bookingId?: string) => void;
   closeReturnModal: () => void;
-  
+
   isNewProductOpen: boolean;
   setIsNewProductOpen: (open: boolean) => void;
-  
+
   isNewCustomerOpen: boolean;
   setIsNewCustomerOpen: (open: boolean) => void;
-  
+
   // Notifications & Refreshes
   toasts: Toast[];
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
@@ -56,7 +58,11 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentView, setCurrentView] = useState<string>('dashboard');
+  const { viewId, navigate } = useRouter();
+  const currentView = viewId;
+  const setCurrentView = (view: string) => {
+    navigate(view);
+  };
   const [language, setLanguage] = useState<Language>('en');
   const [currentRole, setCurrentRole] = useState<UserRole>('Admin');
 

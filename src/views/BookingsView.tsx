@@ -91,7 +91,7 @@ export const BookingsView: React.FC = () => {
 
         {/* Status Tabs */}
         <div className="flex items-center gap-1 overflow-x-auto w-full md:w-auto p-1 bg-[#FAF8F5] rounded-lg border border-stone-200 text-xs">
-          {['all', 'confirmed', 'preparing', 'ready', 'picked_up', 'returned', 'completed'].map((st) => (
+          {['all', 'confirmed', 'alterations', 'ready', 'active_rental', 'returned', 'completed'].map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
@@ -99,7 +99,7 @@ export const BookingsView: React.FC = () => {
                 statusFilter === st ? 'bg-[#1F2421] text-white' : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              {st.replace('_', ' ')}
+              {st === 'all' ? 'All Bookings' : st === 'active_rental' ? 'Active Rental' : st.replace('_', ' ')}
             </button>
           ))}
         </div>
@@ -205,7 +205,6 @@ export const BookingsView: React.FC = () => {
 
       {/* Modals */}
       <BookingDetailModal booking={selectedBooking} onClose={() => setSelectedBooking(null)} />
-      <NewBookingWizardModal />
     </div>
   );
 };

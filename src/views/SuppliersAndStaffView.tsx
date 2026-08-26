@@ -84,10 +84,10 @@ export const SuppliersAndStaffView: React.FC = () => {
                     <td className="py-3.5 px-4 text-stone-700">{s.contactPerson}</td>
                     <td className="py-3.5 px-4 text-stone-600 font-mono">{s.phone}</td>
                     <td className="py-3.5 px-4 text-stone-600">{s.city}</td>
-                    <td className="py-3.5 px-4 font-mono text-[11px] text-stone-500">{s.gstin || 'N/A'}</td>
+                    <td className="py-3.5 px-4 font-mono text-[11px] text-stone-500">{s.gstin || (s as any).gstNumber || 'N/A'}</td>
                     <td className="py-3.5 px-4">
                       <div className="flex flex-wrap gap-1">
-                        {s.categories?.map((cat) => (
+                        {(s.categories || (s as any).categoriesProvided || []).map((cat: string) => (
                           <span key={cat} className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded text-[10px]">
                             {cat}
                           </span>
@@ -112,7 +112,7 @@ export const SuppliersAndStaffView: React.FC = () => {
                   <th className="py-3 px-4">Staff Member</th>
                   <th className="py-3 px-4">Role</th>
                   <th className="py-3 px-4">Phone</th>
-                  <th className="py-3 px-4">Permissions</th>
+                  <th className="py-3 px-4">Role / Specialization</th>
                   <th className="py-3 px-4 text-center">Status</th>
                 </tr>
               </thead>
@@ -127,7 +127,7 @@ export const SuppliersAndStaffView: React.FC = () => {
                     </td>
                     <td className="py-3.5 px-4 text-stone-600 font-mono">{st.phone}</td>
                     <td className="py-3.5 px-4 text-stone-500 text-[11px]">
-                      {st.permissions.join(', ')}
+                      {st.permissions?.join(', ') || st.specialization || 'Showroom Operations'}
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded text-[10px]">

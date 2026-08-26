@@ -327,10 +327,6 @@ export const ProductsView: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Modals */}
-      <ProductDetailModal />
-      <ProductFormModal />
     </div>
   );
 };
